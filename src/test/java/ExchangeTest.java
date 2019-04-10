@@ -15,12 +15,36 @@ public class ExchangeTest {
     }
 
     @Test
-    public void testResponseTableA() {
-        String exchangeType = "medium";
+    public void testResponseTypeMedium() {
+        ExchangeType type = ExchangeType.MEDIUM;
         String currencyCode = "EUR";
-        String date = "2019-04-10";
+        int date = 0;
         try {
-            System.out.println(exchange.exchangeCurrency(exchangeType, currencyCode, date));
+            assertThat(exchange.exchangeCurrency(type, currencyCode, date)).isInstanceOf(Double.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testResponseTypeSellingMonthAgo() {
+        ExchangeType type = ExchangeType.SELLING;
+        String currencyCode = "EUR";
+        int date = -30;
+        try {
+            assertThat(exchange.exchangeCurrency(type, currencyCode, date)).isInstanceOf(Double.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testResponseTypeBuyingTwoMonthsAgo() {
+        ExchangeType type = ExchangeType.BUYING;
+        String currencyCode = "EUR";
+        int date = -31;
+        try {
+            assertThat(exchange.exchangeCurrency(type, currencyCode, date)).isInstanceOf(Double.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
