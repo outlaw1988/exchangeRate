@@ -5,12 +5,19 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class Exchange {
 
-    public double exchangeCurrency(ExchangeType exchangeType, String currencyCode, int dateInt)
+    private final String url = "http://api.nbp.pl/api/exchangerates/rates/%s/%s/%s/?format=json";
+
+    public Exchange() {
+        // empty
+    }
+
+    public BigDecimal exchangeCurrency(ExchangeType exchangeType, String currencyCode, int dateInt)
             throws IOException {
         String dateStr = DateTimeFormat.forPattern("yyyy-MM-dd").print(getDateComputeDaysFromNow(dateInt));
 
@@ -28,15 +35,10 @@ public class Exchange {
             type = "bid";
         }
 
-        String url = String.format("http://api.nbp.pl/api/exchangerates/rates/%s/%s/%s/?format=json",
-                    tableType, currencyCode, dateStr);
-
-        StringBuffer response = getResponse(url);
-
-        System.out.println("Response is:" + response);
+        StringBuffer response = getResponse(String.format(url, tableType, currencyCode, dateStr));
         JSONObject myResponse = new JSONObject(response.toString());
-        System.out.println("Rate is: " + myResponse.getJSONArray("rates").getJSONObject(0));//.getDouble("mid"));
-        return myResponse.getJSONArray("rates").getJSONObject(0).getDouble(type);
+
+        return new BigDecimal(myResponse.getJSONArray("rates").getJSONObject(0).getDouble(type));
     }
 
     private StringBuffer getResponse(String url) throws IOException {
@@ -53,6 +55,10 @@ public class Exchange {
         }
         in.close();
         return response;
+    }
+
+    public BigDecimal hundredPLNtoCurrency(BigDecimal rate) {
+        return new BigDecimal(100).divide(rate, 2, BigDecimal.ROUND_HALF_UP);
     }
 
     private DateTime getDateComputeDaysFromNow(int days) {

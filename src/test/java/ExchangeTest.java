@@ -2,6 +2,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -20,7 +21,7 @@ public class ExchangeTest {
         String currencyCode = "EUR";
         int date = 0;
         try {
-            assertThat(exchange.exchangeCurrency(type, currencyCode, date)).isInstanceOf(Double.class);
+            assertThat(exchange.exchangeCurrency(type, currencyCode, date)).isInstanceOf(BigDecimal.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -32,7 +33,7 @@ public class ExchangeTest {
         String currencyCode = "EUR";
         int date = -30;
         try {
-            assertThat(exchange.exchangeCurrency(type, currencyCode, date)).isInstanceOf(Double.class);
+            assertThat(exchange.exchangeCurrency(type, currencyCode, date)).isInstanceOf(BigDecimal.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -42,11 +43,19 @@ public class ExchangeTest {
     public void testResponseTypeBuyingTwoMonthsAgo() {
         ExchangeType type = ExchangeType.BUYING;
         String currencyCode = "EUR";
-        int date = -31;
+        int date = -60;
         try {
-            assertThat(exchange.exchangeCurrency(type, currencyCode, date)).isInstanceOf(Double.class);
+            assertThat(exchange.exchangeCurrency(type, currencyCode, date)).isInstanceOf(BigDecimal.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void testHundredPLNtoCurrency() {
+        BigDecimal rate = new BigDecimal(3.14);
+        assertThat(exchange.hundredPLNtoCurrency(rate)).isCloseTo(new BigDecimal(31.85),
+                within(new BigDecimal(0.01)));
+    }
+
 }
