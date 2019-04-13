@@ -38,6 +38,8 @@ public class Exchange {
         StringBuffer response = getResponse(String.format(url, tableType, currencyCode, dateStr));
         JSONObject myResponse = new JSONObject(response.toString());
 
+        //System.out.println("Response: " + myResponse);
+
         return new BigDecimal(myResponse.getJSONArray("rates").getJSONObject(0).getDouble(type));
     }
 
@@ -46,8 +48,7 @@ public class Exchange {
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("GET");
         con.setRequestProperty("User-Agent", "Mozilla/5.0");
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
         String inputLine;
         StringBuffer response = new StringBuffer();
         while ((inputLine = in.readLine()) != null) {
@@ -66,6 +67,11 @@ public class Exchange {
         DateTime outDateTime;
         if (days >= 0) outDateTime = dateTime.plusDays(days);
         else outDateTime = dateTime.minusDays(Math.abs(days));
+
+        // Stock market does not work on Saturdays and Sundays
+        if (outDateTime.getDayOfWeek() == 6) outDateTime = outDateTime.minusDays(1);
+        if (outDateTime.getDayOfWeek() == 7) outDateTime = outDateTime.minusDays(2);
+
         return outDateTime;
     }
 
